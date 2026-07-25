@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOCS V2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0c0e12;
+    --panel: #14171d;
+    --panel-2: #1a1e26;
+    --line: #262b34;
+    --text: #e7e9ee;
+    --muted: #7d8492;
+    --tr: #d98a3c;
+    --tr-dim: rgba(217,138,60,.14);
+    --ct: #5b8dd9;
+    --ct-dim: rgba(91,141,217,.14);
+    --gold: #e8c15a;
+    --danger: #c9584f;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{font-family:'Rajdhani',sans-serif; letter-spacing:.03em; text-transform:uppercase;}
+  .app{max-width:980px; margin:0 auto; padding:18px 16px 60px;}
+
+  header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--gold); box-shadow:0 0 10px var(--gold);}
+  .brand h1{font-size:22px; margin:0; font-weight:700;}
+  .brand span{color:var(--muted); font-size:11px; letter-spacing:.12em; display:block; font-family:'Inter'; text-transform:uppercase;}
+  .total-pill{background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:6px 14px; font-size:13px; color:var(--muted); font-family:'Inter';}
+  .total-pill b{color:var(--gold); font-weight:600;}
+
+  .searchbar{position:relative; margin-bottom:14px;}
+  .searchbar input{
+    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:13px 44px 13px 16px; color:var(--text); font-size:15px; font-family:'Inter'; outline:none;
+    transition:border-color .15s;
+  }
+  .searchbar input:focus{border-color:var(--gold);}
+  .searchbar kbd{
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:2px 6px;
+    font-family:'Inter'; pointer-events:none;
+  }
+
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+    padding:8px 16px; border-radius:999px; font-size:12.5px; cursor:pointer; font-family:'Rajdhani';
+    font-weight:600; letter-spacing:.04em; text-transform:uppercase; transition:.15s;
+  }
+  .chip svg{width:20px; height:20px;}
+  .chip img{width:20px; height:20px; border-radius:4px; vertical-align:middle; object-fit:contain;}
+  .chip:hover{border-color:#3a4150;}
+  .chip.active{background:var(--gold); color:#1a1608; border-color:var(--gold);}
+  .chip.side-tr.active{background:var(--tr); color:#221305; border-color:var(--tr);}
+  .chip.side-ct.active{background:var(--ct); color:#0b1a30; border-color:var(--ct);}
+  .chip.cat-active{color:#0c0e12; border-color:transparent;}
+  .filter-label{color:var(--muted); font-size:10.5px; font-family:'Rajdhani'; font-weight:700; letter-spacing:.1em; margin:10px 0 6px;}
+
+  .mapgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:12px; margin-bottom:8px;}
+  .mapcard{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; cursor:pointer; transition:.15s; position:relative; overflow:hidden;
+  }
+  .mapcard:hover{border-color:var(--gold); transform:translateY(-1px);}
+  .mapcard .icon{display:block; width:52px; height:52px; border-radius:12px; overflow:hidden; margin-bottom:10px;}
+  .mapcard .icon svg{width:52px; height:52px; display:block;}
+  .mapcard .icon img{display:block; width:52px; height:52px;}
+  .mapcard h3{margin:0 0 4px; font-size:19px;}
+  .mapcard .count{color:var(--muted); font-size:12px; font-family:'Inter';}
+
+  .backbtn{background:none; border:none; color:var(--muted); font-family:'Rajdhani'; font-weight:600;
+    text-transform:uppercase; font-size:13px; letter-spacing:.05em; cursor:pointer; margin-bottom:14px; padding:0;}
+  .backbtn:hover{color:var(--gold);}
+  .map-title{display:flex; align-items:center; gap:12px; margin:0 0 14px;}
+  .map-title .icon{display:block; width:38px; height:38px; border-radius:9px; overflow:hidden; flex:none;}
+  .map-title .icon svg{width:38px; height:38px; display:block;}
+  .map-title .icon img{display:block; width:38px; height:38px;}
+  .map-title h2{margin:0; font-size:24px;}
+
+  .section-title{display:flex; align-items:center; gap:10px; margin:22px 0 10px; padding:9px 14px; border-radius:8px; cursor:pointer; user-select:none;}
+  .section-title .chevron{margin-left:4px; transition:transform .18s; flex:none; color:var(--muted); font-size:14px;}
+  .section-title.collapsed .chevron{transform:rotate(-90deg);}
+  .section-title .cat-icon{width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none;}
+  .section-title .cat-icon svg{width:26px; height:26px;}
+  .section-title .cat-icon img{width:38px; height:38px; border-radius:8px; object-fit:cover;}
+  .section-title h2{margin:0; font-size:15px; font-weight:700; letter-spacing:.04em;}
+  .section-title .count-tag{margin-left:auto; font-family:'Inter'; font-size:11px; color:var(--muted);}
+
+  .card{
+    display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--line);
+    border-left:4px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; transition:.12s;
+  }
+  .card:hover{border-color:#3a4150;}
+  .side-tag{
+    flex:none; font-family:'Rajdhani'; font-weight:700; font-size:11px; letter-spacing:.05em;
+    padding:4px 9px; border-radius:5px;
+  }
+  .side-tag.tr{background:var(--tr-dim); color:var(--tr);}
+  .side-tag.ct{background:var(--ct-dim); color:var(--ct);}
+  .cat-badge{flex:none; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .cat-badge svg{width:26px; height:26px;}
+  .cat-badge img{width:38px; height:38px; object-fit:cover;}
+  .card-body{flex:1; min-width:0;}
+  .card-name{font-size:14.5px; font-weight:500; display:flex; align-items:center; gap:6px;}
+  .card-name a{color:var(--text); text-decoration:none;}
+  .card-name a:hover{color:var(--gold); text-decoration:underline;}
+  .star{color:var(--gold); font-size:12px;}
+  .card-meta{color:var(--muted); font-size:11.5px; margin-top:2px; font-family:'Inter';}
+  .delbtn{flex:none; background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; opacity:.5; padding:2px 4px;}
+  .delbtn:hover{opacity:1; color:var(--danger);}
+
+  .empty{color:var(--muted); font-size:13px; padding:20px 0; text-align:center; font-family:'Inter';}
+
+  .gallery{display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:8px; margin:10px 0 18px;}
+  .gallery img{width:100%; border-radius:8px; border:1px solid var(--line); cursor:zoom-in;}
+
+  .lightbox{position:fixed; inset:0; background:rgba(6,7,9,.94); z-index:1000; display:flex; align-items:center; justify-content:center; cursor:zoom-out; padding:24px;}
+  .lightbox.hidden{display:none;}
+  .lightbox img{max-width:94vw; max-height:94vh; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.5);}
+  .lightbox .lb-close{position:absolute; top:18px; right:22px; color:var(--muted); font-family:'Rajdhani'; font-size:13px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;}
+
+  .icon-btn{
+    background:var(--panel); border:1px solid var(--line); color:var(--muted); border-radius:999px;
+    padding:6px 13px; font-size:12px; font-family:'Rajdhani'; font-weight:600; letter-spacing:.04em;
+    text-transform:uppercase; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  }
+  .icon-btn:hover{border-color:var(--gold); color:var(--gold);}
+
+  .icon-panel-overlay{position:fixed; inset:0; background:rgba(6,7,9,.85); z-index:900; display:flex; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;}
+  .icon-panel-overlay.hidden{display:none;}
+  .icon-panel{background:var(--panel); border:1px solid var(--line); border-radius:14px; max-width:640px; width:100%; padding:22px;}
+  .icon-panel h2{margin:0 0 4px; font-size:20px;}
+  .icon-panel .sub{color:var(--muted); font-size:12.5px; font-family:'Inter'; margin-bottom:18px;}
+  .icon-panel .close-x{float:right; background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; line-height:1;}
+  .icon-panel .grp-label{color:var(--muted); font-size:10.5px; font-family:'Rajdhani'; font-weight:700; letter-spacing:.1em; margin:16px 0 8px;}
+  .icon-row{display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--line);}
+  .icon-row .preview{width:40px; height:40px; border-radius:9px; overflow:hidden; flex:none; background:var(--panel-2); display:flex; align-items:center; justify-content:center;}
+  .icon-row .preview svg, .icon-row .preview img{width:100%; height:100%; object-fit:cover;}
+  .icon-row .name{flex:1; font-size:13.5px; font-family:'Inter';}
+  .icon-row .row-actions{display:flex; gap:6px; flex:none;}
+  .icon-row button{background:var(--panel-2); border:1px solid var(--line); color:var(--muted); border-radius:6px; padding:6px 10px; font-size:11px; font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; letter-spacing:.03em; cursor:pointer;}
+  .icon-row button:hover{color:var(--gold); border-color:var(--gold);}
+  .icon-row button.reset{color:var(--danger);}
+
+  .addbox{background:var(--panel-2); border:1px dashed var(--line); border-radius:var(--radius); padding:14px; margin-top:18px;}
+  .addbox summary{cursor:pointer; color:var(--gold); font-family:'Rajdhani'; font-weight:600; font-size:13px; letter-spacing:.05em; text-transform:uppercase;}
+  .addform{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+  .addform input, .addform select{
+    background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:9px 10px; color:var(--text); font-size:13px; font-family:'Inter';
+  }
+  .addform input:focus, .addform select:focus{outline:none; border-color:var(--gold);}
+  .addform .full{grid-column:1/-1;}
+  .addform button{
+    grid-column:1/-1; background:var(--gold); border:none; border-radius:7px; padding:10px; color:#1a1608;
+    font-family:'Rajdhani'; font-weight:700; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; font-size:13px;
+  }
+
+  .novas-item{display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px; margin-bottom:7px; flex-wrap:wrap;}
+  .novas-item a{color:var(--muted); font-size:12.5px; word-break:break-all; flex:1; min-width:160px; text-decoration:none;}
+  .novas-item a:hover{color:var(--text);}
+  .novas-item select, .novas-item input[type=text]{background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:5px 7px; font-size:12px;}
+  .novas-item button{flex:none; background:var(--gold); border:none; border-radius:6px; padding:6px 10px; color:#1a1608; font-family:'Rajdhani'; font-weight:700; font-size:11px; cursor:pointer;}
+
+  @media(max-width:520px){
+    .addform{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="lightbox hidden" id="lightbox"><span class="lb-close">Fechar ✕</span><img id="lightbox-img" src=""></div>
+<div class="icon-panel-overlay hidden" id="icon-panel-overlay">
+  <div class="icon-panel">
+    <button class="close-x" id="close-icon-panel">✕</button>
+    <h2>Personalizar ícones</h2>
+    <div class="sub">Escolha um arquivo de imagem do seu computador pra cada ícone. Fica salvo só no seu navegador — eu (Claude) não vejo nem armazeno essas imagens.</div>
+    <div id="icon-panel-body"></div>
+  </div>
+</div>
+<input type="file" id="icon-file-input" accept="image/*" style="display:none;">
+
+<script>
+/* ===================== ÍCONES DE MAPA (ilustrações originais, não são arte da Valve) ===================== */
+/* ===================== ÍCONES DE MAPA =====================
+   PRA TROCAR: mesmo esquema do bloco de categorias acima —
+   ou cole o SVG direto no lugar do `<svg...>...</svg>`,
+   ou troque por `<img src="icons/mirage.png" style="width:100%;height:100%;object-fit:contain;">`
+   (salvando mirage.png, inferno.png etc. numa pasta "icons" ao lado deste arquivo .html)
+================================================================= */
+/* =====================================================================
+   ÍCONES FINAIS (hospedados por você) — cole os links aqui quando tiver.
+   Preenchido = usa a imagem sua. Vazio ('') = usa o desenho padrão.
+   Ex: mirage: 'https://i.imgur.com/xxxxx.png'
+   ===================================================================== */
+const ICON_URLS = {
+  maps: {
+    mirage: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/mirage.png',
+    inferno: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno.png',
+    overpass: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/overpass.png',
+    anubis: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/anubis.png',
+    dust2: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/dust2.png',
+    ancient: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/ancient.png',
+    nuke: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/nuke.png',
+    train: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/train.png',
+  },
+  cats: {
+    smoke: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/smoke.png',
+    flash: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/flash.png',
+    molotov: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/molotov.png',
+    he: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/he.png',
+    combo: '',
+  },
+  sides: {
+    tr: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/tr.png',
+    ct: 'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/ct.png',
+  }
+};
+
+const MAP_ICONS = {
+mirage: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><g fill="#e8c15a"><path d="M48 22c-4.5 5.5-6 9.5-6 14.5h12c0-5-1.5-9-6-14.5Z"/><path d="M28 74V52c0-6.5 4-11 9-13v6c-3 1.5-4.5 4-4.5 7v22Zm40 0V52c0-6.5-4-11-9-13v6c3 1.5 4.5 4 4.5 7v22Z"/><rect x="36" y="38" width="24" height="36" rx="2"/></g><rect x="44.5" y="56" width="7" height="18" fill="#1a1e26"/></svg>`,
+inferno: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><path fill="#e8c15a" d="M48 18c4 8 1 12-2 15.5C43 37 40 41.5 40 48c0 9 3.8 16.5 8 16.5s8-7.5 8-15c0-5.5-2.5-8.5-4.7-11.5.4 4.3-.9 6.7-3 8.5-.4-5-2.2-8-4.5-11C46.5 31 50 26 48 18Z"/></svg>`,
+overpass: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><path fill="#e8c15a" d="M18 62c4-17 15-27 30-27s26 10 30 27h-9c-3.5-13-11-21-21-21s-17.5 8-21 21h-9Z"/><rect x="16" y="62" width="64" height="7" rx="1.5" fill="#e8c15a"/></svg>`,
+anubis: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><circle cx="68" cy="24" r="6" fill="#e8c15a"/><path fill="#e8c15a" d="M48 20 18 76h60Z"/></svg>`,
+dust2: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><circle cx="64" cy="30" r="12" fill="#e8c15a"/><path fill="#e8c15a" d="M16 72c6-13 17-20 32-20s26 7 32 20Z"/></svg>`,
+ancient: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><g fill="#e8c15a"><path d="M16 32 48 16l32 16v5H16Z"/><rect x="20" y="40" width="7" height="30"/><rect x="34.5" y="40" width="7" height="30"/><rect x="54.5" y="40" width="7" height="30"/><rect x="69" y="40" width="7" height="30"/><rect x="16" y="70" width="64" height="6" rx="1.5"/></g></svg>`,
+nuke: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><g fill="#e8c15a"><circle cx="48" cy="48" r="7"/><path d="M48 21a27 27 0 0 1 23.4 13.5l-13.5 7.8A12 12 0 0 0 48 36Z"/><path d="M71.4 61.5A27 27 0 0 1 48 75V54.7a12 12 0 0 0 9.9-5.7Z"/><path d="M24.6 61.5A27 27 0 0 1 24.6 34.5l13.5 7.8a12 12 0 0 0 0 11.4Z"/></g></svg>`,
+train: `<svg viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="#1a1e26"/><path fill="#e8c15a" d="M22 28a8 8 0 0 1 8-8h36a8 8 0 0 1 8 8v30a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8Zm-4 40 9-14h42l9 14Z"/><rect x="28" y="26" width="16" height="13" rx="1.5" fill="#1a1e26"/><rect x="52" y="26" width="16" height="13" rx="1.5" fill="#1a1e26"/><circle cx="34" cy="60" r="4.5" fill="#1a1e26"/><circle cx="62" cy="60" r="4.5" fill="#1a1e26"/></svg>`,
+};
+
+const MAPS = [
+  {id:'mirage', name:'Mirage'},
+  {id:'inferno', name:'Inferno'},
+  {id:'overpass', name:'Overpass'},
+  {id:'anubis', name:'Anubis'},
+  {id:'dust2', name:'Dust 2'},
+  {id:'ancient', name:'Ancient'},
+  {id:'nuke', name:'Nuke'},
+  {id:'train', name:'Train'},
+];
+
+/* ===================== CATEGORIAS: ícone + cor pra diferenciar de relance ===================== */
+/* ===================== CATEGORIAS: ícone + cor pra diferenciar de relance =====================
+   PRA TROCAR O ÍCONE POR UM SEU:
+   Opção A (você tem o código SVG do ícone): troque todo o conteúdo entre as crases `...`
+     do campo "icon" abaixo pelo SVG dele (mantenha as crases).
+   Opção B (você só tem um arquivo .png/.svg): troque o campo "icon" por:
+     `<img src="icons/smoke.png" style="width:100%;height:100%;object-fit:contain;">`
+     e salve o arquivo "smoke.png" numa pasta chamada "icons" ao lado deste .html
+     (mesma pasta, senão a imagem não aparece). Repita pra flash.png, molotov.png, he.png, combo.png.
+================================================================================================ */
+const CAT_ORDER = ['smoke','flash','molotov','he','combo'];
+const CAT_META = {
+  smoke:   {label:'Smokes',    color:'#adb5c2', icon:`<svg viewBox="0 0 48 48"> <ellipse cx="24" cy="41" rx="10" ry="2.2" fill="#000" opacity=".25"/> <g stroke="#14171d" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"> <path d="M16.5 17c0-2 1-3 3-3h9c2 0 3 1 3 3v18c0 3.3-2.7 6-7.5 6s-7.5-2.7-7.5-6Z" fill="#adb5c2"/> <path d="M16.5 27h18v6.5h-18Z" fill="#8890a0"/> <path d="M19.5 9.5h9v5.5h-9Z" fill="#7d8492"/> <path d="M29 12.5c3-1 6.5-.3 7.5 2.7-2 .3-3.6-.2-4.7-1.6" fill="none"/> </g> <circle cx="34" cy="16" r="3.4" fill="#1a1e26" stroke="#14171d" stroke-width="2.2"/> <circle cx="34" cy="16" r="1.1" fill="#0c0e12"/> <path d="M20 21c1.4 2.6 1.4 5.4 0 8" stroke="#fff" stroke-opacity=".35" stroke-width="1.8" fill="none" stroke-linecap="round"/> </svg>`},
+  flash:   {label:'Flashes',   color:'#e8d24a', icon:`<svg viewBox="0 0 48 48"> <ellipse cx="25" cy="41.5" rx="10" ry="2.2" fill="#000" opacity=".25"/> <g transform="rotate(-8 24 24)" stroke="#14171d" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"> <path d="M16.5 17c0-2 1-3 3-3h9c2 0 3 1 3 3v18c0 3.3-2.7 6-7.5 6s-7.5-2.7-7.5-6Z" fill="#ecdf9a"/> <path d="M16.5 26h18v6h-18Z" fill="#e8d24a"/> <path d="M19.5 9.5h9v5.5h-9Z" fill="#c9b52e"/> <path d="M29 12.5c3-1 6.5-.3 7.5 2.7-2 .3-3.6-.2-4.7-1.6" fill="none"/> </g> <circle cx="35" cy="14.5" r="3.4" fill="#1a1e26" stroke="#14171d" stroke-width="2.2"/> <circle cx="35" cy="14.5" r="1.1" fill="#0c0e12"/> <path d="M20.5 20c1.4 2.6 1.4 5.4 0 8" stroke="#fff" stroke-opacity=".45" stroke-width="1.8" fill="none" stroke-linecap="round" transform="rotate(-8 24 24)"/> </svg>`},
+  molotov: {label:"Molotov's", color:'#c9584f', icon:`<svg viewBox="0 0 48 48"> <ellipse cx="22" cy="41" rx="10" ry="2.2" fill="#000" opacity=".22"/> <g transform="rotate(18 24 24)"> <g stroke="#14171d" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"> <path d="M18 16c0-2.2 1.7-2.9 1.7-5V7h6.6v4c0 2.1 1.7 2.8 1.7 5v19c0 4.3-2.6 6.5-5 6.5s-5-2.2-5-6.5Z" fill="#7d8a3f"/> <path d="M19.7 7h6.6v3.4h-6.6Z" fill="#5f6b2e"/> </g> <rect x="19.5" y="23" width="9" height="5.5" fill="#94a552" opacity=".8"/> <path d="M20.5 9c-1.6 1.6-2.4 3.6-1.4 6.3 1-1 2.4-1.5 3.8-1.3" stroke="#14171d" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/> </g> <path d="M30 8c2.5 1.2 4.2 3 3.6 5.8-1.6 7-.6 10.4 2 12.6-3.4.6-6.6-1-7.4-4.6-.5-2.2.2-4 1.2-5.6-1.6.2-2.8 1-3.6 2.4-1-3.6.6-7.6 4.2-10.6Z" fill="#c9584f" stroke="#14171d" stroke-width="2.2" stroke-linejoin="round"/> <path d="M29.5 12c1 2.4.6 4.4-1 6" fill="none" stroke="#f2a08a" stroke-width="1.6" stroke-linecap="round"/> </svg>`},
+  he:      {label:'HE',        color:'#e8a33d', icon:`<svg viewBox="0 0 48 48"> <ellipse cx="24" cy="41.5" rx="11" ry="2.2" fill="#000" opacity=".25"/> <g stroke="#14171d" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"> <circle cx="24" cy="27" r="13" fill="#c9584f"/> <path d="M11 26h26v6H11Z" fill="#e8a33d"/> <path d="M19.5 9.5h9v5.5h-9Z" fill="#b04a41"/> <path d="M29 12.5c3-1 6.5-.3 7.5 2.7-2 .3-3.6-.2-4.7-1.6" fill="none"/> </g> <circle cx="34" cy="16" r="3.4" fill="#1a1e26" stroke="#14171d" stroke-width="2.2"/> <circle cx="34" cy="16" r="1.1" fill="#0c0e12"/> <path d="M16 22c2.6 2 5.6 2 8.2 0" stroke="#fff" stroke-opacity=".35" stroke-width="1.8" fill="none" stroke-linecap="round"/> </svg>`},
+  combo:   {label:'Combos',    color:'#9b7fd4', icon:`<svg viewBox="0 0 48 48"> <ellipse cx="24" cy="41.5" rx="13" ry="2.2" fill="#000" opacity=".22"/> <g stroke="#14171d" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"> <path d="M8 20c0-1.7.9-2.6 2.6-2.6h7.8c1.7 0 2.6.9 2.6 2.6v15c0 2.8-2.3 5-6.5 5s-6.5-2.2-6.5-5Z" fill="#b28fe0" opacity=".9"/> <path d="M8 28h13v5h-13Z" fill="#9670cc" opacity=".9"/> <path d="M10.5 13.5h7.8v4.6h-7.8Z" fill="#8a68bd" opacity=".9"/> <path d="M22 24c0-1.7.9-2.6 2.6-2.6h7.8c1.7 0 2.6.9 2.6 2.6v13c0 2.6-2.3 4.6-6.5 4.6s-6.5-2-6.5-4.6Z" fill="#9b7fd4"/> <path d="M22 31h13v4.6h-13Z" fill="#7f60ba"/> <path d="M24.5 17.5h7.8v4.6h-7.8Z" fill="#6f4fac"/> </g> </svg>`},
+};
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+let nextId = 1;
+function n(map,side,cat,name,url,essential){ return {id:'g'+(nextId++), map, side, cat, name, url, essential:!!essential}; }
+
+const NADES = [
+
+// MIRAGE
+n('mirage','tr','smoke','Isurus do Spawn Rápido','https://www.youtube.com/shorts/RQ3pO_5hEmo'),
+n('mirage','tr','smoke','Isurus do Spawn Rápido 2','https://www.facebook.com/reel/1246753770411853'),
+n('mirage','tr','smoke','Cachoeira Fogo [Carroça]','https://www.youtube.com/shorts/AMhIrJZgHhc'),
+n('mirage','tr','smoke','Cachoeira Fogo [Base]','https://x.com/NadesOutHere/status/1962863078069928360'),
+n('mirage','tr','smoke','Exec Rush B [Base]','https://www.youtube.com/shorts/hmwOtBmtfH0'),
+n('mirage','tr','smoke','Exec B','https://youtube.com/shorts/q_3tQx1_wPU'),
+n('mirage','tr','smoke','Liminha B','https://www.facebook.com/reel/1043996184359730'),
+n('mirage','tr','smoke','Cabecinha/Liga Marotar','https://www.facebook.com/reel/1397541618501470'),
+n('mirage','tr','smoke','Janela NOVA','https://www.youtube.com/shorts/MmU82Jp976A'),
+n('mirage','tr','smoke','Janela Fora do Spawn','https://www.facebook.com/reel/1188468849889336'),
+n('mirage','tr','smoke','Cabecinha e Passagem Jungle/Liga','https://www.youtube.com/shorts/FghBpgr0HwU'),
+n('mirage','ct','smoke','OneWay Janela','https://www.youtube.com/shorts/xBnXG8dWZBU'),
+n('mirage','ct','smoke','Solo B [COMBO]','https://www.facebook.com/reel/1515291262775012'),
+n('mirage','ct','smoke','Descer Janela no Shiu','https://www.facebook.com/reel/1346725346955103'),
+n('mirage','tr','flash','Rato → Liga (Sem Aparecer)','https://www.facebook.com/reel/4095546080699245'),
+n('mirage','ct','flash','Janela → Rato (Perfeitinha)','https://web.facebook.com/reel/822960740428963'),
+n('mirage','tr','molotov','Tetris → Default / Newba / Ninja','https://web.facebook.com/reel/1356840979172688'),
+n('mirage','tr','molotov','Tapete → Van (Perfeitinha)','https://www.facebook.com/reel/1543463313653689'),
+n('mirage','ct','molotov','Retake Liga → Default e Newba','https://www.facebook.com/reel/2250867058747881'),
+n('mirage','ct','he','Quebrar Smoke Janela','https://www.youtube.com/shorts/oKRGZ29AQ2o'),
+// INFERNO
+n('inferno','tr','smoke','Cogu/Xuxa','https://www.youtube.com/shorts/H--qPkpxZ-g'),
+n('inferno','tr','smoke','Combo - CT e Caixão','https://www.facebook.com/reel/600878109483455'),
+n('inferno','tr','smoke','Exec B Perfeita','https://www.youtube.com/shorts/NLcSQa8qJYI'),
+n('inferno','tr','smoke','Saída do Tapete → Caminhão','https://www.youtube.com/shorts/MObsIhORAi8'),
+n('inferno','tr','smoke','Spawn TR → Banana','https://www.facebook.com/share/v/17TJs6oHJ6/'),
+n('inferno','ct','smoke','Spawn → Mid','https://www.youtube.com/shorts/lLzJeoX4dNI'),
+n('inferno','ct','smoke','OneWay Biblioteca','https://www.facebook.com/reel/1137518328278688'),
+n('inferno','tr','flash','Domínio Banana [Molodoy]','https://www.facebook.com/reel/1562778764904741'),
+n('inferno','tr','flash','Entrada B','https://www.facebook.com/reel/1067945012181564'),
+n('inferno','ct','flash','Peek Mid Lâmpada','https://www.facebook.com/reel/1271856831327411'),
+n('inferno','ct','flash','Peek Fallen/Carro','https://www.facebook.com/reel/1222692146300171'),
+n('inferno','ct','flash','BTT - Segurar Rush B','https://www.youtube.com/shorts/LxS6k5F5Ezs'),
+n('inferno','ct','flash','Bomb → Xuxa (Segurar Rush)','https://www.facebook.com/reel/1475538623557933'),
+n('inferno','tr','molotov','Varanda/HS - Queima Tudo','https://www.facebook.com/reel/24244425038547466'),
+n('inferno','tr','molotov','Afterplant A - Igreja → Default','https://www.youtube.com/shorts/6thIeLbht7o'),
+n('inferno','tr','molotov','Combo BTT e Tripla','https://www.facebook.com/reel/1367863867840906'),
+n('inferno','tr','molotov','Tapete → Default/Coldzera','https://www.facebook.com/reel/1140236148290889'),
+n('inferno','ct','molotov','Retake A → Caixa Central e Newba','https://www.facebook.com/reel/779428821378049'),
+n('inferno','ct','molotov','Retake A → Areia','https://www.youtube.com/shorts/9t0JaOPaWiA'),
+n('inferno','tr','he','Combo - Kill CT Cravado','https://www.youtube.com/shorts/nt8NardguiY'),
+n('inferno','ct','he','Retake A → Default','https://www.youtube.com/shorts/Be_ie0-HowY'),
+// OVERPASS
+n('overpass','tr','smoke','Exec A (Lixeira e Banco)','https://www.facebook.com/reel/1792271771639291'),
+n('overpass','tr','smoke','Exec B (Bomb e Ponte)','https://www.facebook.com/reel/1907020413480769'),
+n('overpass','tr','smoke','Céu','https://www.youtube.com/shorts/8KSDPBg_O4c'),
+n('overpass','tr','smoke','Spawn → Banheiro','https://www.facebook.com/reel/1884635275449029'),
+n('overpass','ct','smoke','Spawn → Caverna','https://www.facebook.com/reel/1394956828250852'),
+n('overpass','ct','smoke','Spawn → Sapão (Perfeita)','https://web.facebook.com/reel/1319771846594012'),
+n('overpass','tr','flash','Exec Perfeita - Entrada B','https://www.youtube.com/shorts/pPSLjnlHYeU'),
+n('overpass','tr','flash','Peek em Dupla [Sapão]','https://www.facebook.com/reel/1130148916588743'),
+n('overpass','ct','flash','Rua → Fonte/Mid','https://www.youtube.com/shorts/GT9x_yIJr8s'),
+n('overpass','ct','flash','Peek Solo Sapão','https://www.youtube.com/shorts/TmQPZiDnu5Y'),
+n('overpass','ct','flash','Tóxico/Água → Esgoto (Cega Tudo)','https://www.youtube.com/shorts/m7b8DwSvvwQ'),
+n('overpass','tr','molotov','Caminhão','https://www.youtube.com/shorts/hmYpTjJ8s9Q'),
+n('overpass','tr','molotov','AfterPlant Default A [RUA]','https://www.facebook.com/reel/699497303137732'),
+n('overpass','tr','molotov','AfterPlant Default A [LIXEIRA]','https://www.youtube.com/shorts/_t9T1mc392A'),
+n('overpass','tr','molotov','Cancelar Smoke do Spawn - Sapão','https://www.youtube.com/shorts/ifSEn3b3hlE'),
+n('overpass','tr','molotov','Spawn → Cimento (Rápida)','https://www.youtube.com/shorts/Bj2ltmaqvUc'),
+n('overpass','tr','molotov','Spawn → Tóxico (RUSH B)','https://www.youtube.com/shorts/sIYIn_zSEGw'),
+n('overpass','ct','molotov','Caverna do Spawn [00:24]','https://www.youtube.com/watch?v=XqPTlW-YpIA'),
+n('overpass','ct','molotov','Canudo / Esgoto','https://youtube.com/shorts/EE47d-9EAk4'),
+n('overpass','ct','he','Default A [LIXEIRA]','https://www.youtube.com/shorts/b27pD3P9SJY'),
+n('overpass','tr','he','Pézinho Cimento [B]','https://www.youtube.com/shorts/xLGpmdigc_g'),
+// ANUBIS
+n('anubis','tr','smoke','Exec A','https://www.facebook.com/reel/1129260719244784'),
+n('anubis','tr','smoke','Spawn → Mid','https://www.youtube.com/shorts/qmNpVHK-7Kg'),
+n('anubis','tr','smoke','Spawn → Exec B (Completo)','https://www.youtube.com/shorts/HH4BVhvIweA'),
+n('anubis','ct','smoke','Spawn → Mercado','https://www.facebook.com/reel/712649641625026'),
+n('anubis','ct','smoke','Retake B pelo Rato','https://www.facebook.com/reel/678274918520849'),
+n('anubis','ct','flash','Domínio Fundo [B]','https://www.youtube.com/shorts/lo0QbDSi4l0'),
+n('anubis','ct','flash','Domínio Água [A]','https://www.youtube.com/shorts/d9WAo6raahE'),
+n('anubis','tr','molotov','Porta Mid','https://www.youtube.com/shorts/-KauvuUpH4o'),
+n('anubis','tr','molotov','Rato → Insani','https://www.youtube.com/shorts/FLl82nszTfI'),
+n('anubis','tr','molotov','Pilar A','https://www.youtube.com/shorts/wlO6S5oVphQ'),
+n('anubis','ct','molotov','Anti-Rush Mercado','https://www.youtube.com/shorts/8mCiWhywOHY'),
+n('anubis','ct','he','Escadão','https://www.facebook.com/reel/629261723523155'),
+// DUST2
+n('dust2','tr','smoke','Spawn → Porta Mid','https://www.youtube.com/shorts/X_zNjkeUOqs'),
+n('dust2','tr','smoke','Spawn → Caixa Gorda','https://web.facebook.com/reel/1427064218582196'),
+n('dust2','tr','smoke','Exec Passagem Varanda → Bomb','https://www.youtube.com/shorts/UwwunuoAAYQ'),
+n('dust2','tr','smoke','Exec B - Porta e Buraco','https://www.youtube.com/shorts/rKXpN-gq22Q'),
+n('dust2','tr','smoke','[DONK] Spawn → Porta B','https://web.facebook.com/watch/?v=1786332018681946'),
+n('dust2','tr','smoke','Passagem CT → B [Sem Brecha]','https://www.facebook.com/reel/1123330492465474'),
+n('dust2','tr','smoke','Passagem CT → B [Sem Brecha] Pelo Escuro','https://www.youtube.com/shorts/wputU5yItL0'),
+n('dust2','tr','smoke','Afterplant Porta B','https://www.youtube.com/shorts/8o4nA7LCUNU'),
+n('dust2','ct','smoke','Retake B - Buraco','https://www.facebook.com/reel/2134150550408232'),
+n('dust2','ct','smoke','Retake B - Porta','https://www.facebook.com/reel/723685550673770'),
+n('dust2','ct','smoke','Travar Rush Fundo','https://www.facebook.com/reel/2832214403656307'),
+n('dust2','tr','flash','Domínio Fundo em 2','https://www.facebook.com/reel/750571267396654'),
+n('dust2','tr','flash','Solo - Fundo','https://www.facebook.com/reel/1346814647063076'),
+n('dust2','tr','flash','Solo - Porta Mid','https://www.youtube.com/shorts/9mVMwTz8Nf4'),
+n('dust2','tr','flash','Domínio Varanda em 2','https://www.facebook.com/reel/1252449849957369'),
+n('dust2','ct','flash','Retake CT → B','https://www.youtube.com/shorts/33-MGRu2nK0'),
+n('dust2','ct','molotov','Retake B [Bombsite]','https://www.facebook.com/reel/839609478434455'),
+// ANCIENT
+n('ancient','tr','smoke','Exec B → Sol / Sombra / Escuro','https://www.youtube.com/shorts/788MxsSZD7U'),
+n('ancient','tr','smoke','Exec A → Templo / CT / Quadrado','https://www.youtube.com/shorts/nnIv4UvDfI0'),
+n('ancient','tr','smoke','Spawn → Janela','https://www.youtube.com/shorts/3_fORAsv368'),
+n('ancient','tr','smoke','Spawn → Escuro','https://www.youtube.com/shorts/tDRQl-XYY74'),
+n('ancient','tr','smoke','COMBO Smoke + Molo (PISTOL B)','https://web.facebook.com/reel/1243935631093754'),
+n('ancient','tr','flash','Entrada B Perfeitinha','https://www.youtube.com/shorts/w85p1l0YdPw'),
+n('ancient','tr','flash','Domínio SOLO Escuro','https://web.facebook.com/reel/607386038976598'),
+n('ancient','tr','molotov','Sol (Queima Tudo)','https://www.facebook.com/reel/3646859948944085'),
+n('ancient','tr','molotov','Varanda do Spawn','https://www.facebook.com/watch/?v=31499505709633183'),
+n('ancient','ct','molotov','Combo Rua → Molo + HE','https://www.youtube.com/shorts/jabga_Nc8tM'),
+n('ancient','tr','he','Porta/Rampa → Sol','https://www.youtube.com/shorts/ViilwgQA2JU'),
+// NUKE
+n('nuke','tr','smoke','Tonel Bomb (Rush A)','https://www.youtube.com/shorts/bMftQtCBF2E'),
+n('nuke','tr','smoke','Fora - Muro (Longe)','https://www.youtube.com/shorts/CUe83j8DvQg'),
+n('nuke','tr','smoke','Fora - Caminhão (Perto)','https://www.youtube.com/shorts/Zz9duZtDyyA'),
+n('nuke','tr','smoke','Paiva Rampa','https://www.youtube.com/shorts/syYlaHeX4r0'),
+n('nuke','tr','smoke','Spawn (Telhado) → Cat','https://www.youtube.com/shorts/Q4JQmHeruvE'),
+n('nuke','ct','smoke','Play em Dupla (Domínio Rampa)','https://www.youtube.com/shorts/Zxq74DVmcaQ'),
+n('nuke','tr','molotov','Casinha / Tripla','https://www.youtube.com/shorts/KGOmqanfzmM'),
+n('nuke','tr','molotov','Casinha (Pixel do Spawn)','https://www.facebook.com/watch/?v=799683469723126'),
+n('nuke','tr','molotov','Default bomb A','https://assets.csnades.gg/nades/nuke-molotov-WYZxVxrfE4/hq.webm'),
+n('nuke','tr','molotov','Duto falso','https://assets.csnades.gg/nades/nuke-molotov-eIeOPm4vbf/hq.webm'),
+n('nuke','ct','flash','Retake do Cat','https://www.youtube.com/shorts/GWBdxcmRfR8'),
+n('nuke','tr','flash','Casinha → Bomb','https://www.youtube.com/shorts/faJh-5nmcAU'),
+n('nuke','tr','flash','Porta → Bomb','https://www.youtube.com/shorts/tFKpOBDQV68'),
+n('nuke','tr','flash','Spawn (Telhado) → Rush A','https://www.youtube.com/shorts/vVsWiOBsK1o'),
+n('nuke','tr','flash','Bomb A','https://assets.csnades.gg/nades/nuke-flashbang-cho7PEwNEj/hq.webm'),
+n('nuke','tr','combo','Smoke Terra + Bang em cima do bomb A','https://assets.csnades.gg/nades/nuke-smoke-EO2jbfxk5s/hq.webm'),
+n('nuke','tr','combo','Tripla smoke fora diagonal (link corrigido .webm)','https://assets.csnades.gg/nades/nuke-combination-HSxH9cYtGh/hq.webm'),
+n('nuke','tr','combo','Tripla smoke paredão rush fora','https://www.youtube.com/shorts/bUtD_C7EHcU'),
+// TRAIN
+n('train','tr','smoke','Spawn → Bomb Antigo e Liga CT','https://www.youtube.com/shorts/9mhKX-VP-g8'),
+n('train','tr','smoke','Exec B','https://www.facebook.com/watch/?v=2528873120826266'),
+n('train','ct','smoke','Domínio Liga TR (Smoke, Molo e HE)','https://web.facebook.com/watch/?v=1190639962924306'),
+n('train','ct','smoke','Domínio Bombeiro Rápido','https://web.facebook.com/reel/827701183559199'),
+n('train','tr','flash','Entrada A (Perfeitinha)','https://www.youtube.com/shorts/dph-gKoUx2I'),
+n('train','ct','flash','Domínio Banana [B]','https://web.facebook.com/reel/4003377896592211'),
+n('train','tr','molotov','Anti-Rush Baixo','https://www.youtube.com/shorts/1yCrhnK_TO4', true),
+n('train','tr','molotov','Entrada B - Liga CT','https://www.youtube.com/shorts/-nflsg-NDxI'),
+n('train','ct','molotov','Anti-Rush Liga TR','https://www.youtube.com/shorts/MgKBhRpo-QA', true),];
+
+const NOVAS = [
+
+{map:'train', url:'https://www.facebook.com/reel/1273644004529796'},
+{map:'train', url:'https://www.facebook.com/share/v/1BNmTqFWCk/'},
+{map:'train', url:'https://www.youtube.com/shorts/f-8G0oafY94'},
+{map:'train', url:'https://www.facebook.com/reel/1605110637315277'},
+{map:'train', url:'https://www.facebook.com/reel/2224331454738779'},
+{map:'train', url:'https://www.facebook.com/watch/?v=1579929326325540'},
+{map:'train', url:'https://www.facebook.com/reel/1569589230902154'},
+{map:'train', url:'https://www.facebook.com/reel/1197906468632225'},
+{map:'ancient', url:'https://www.facebook.com/reel/784774194333532'},
+{map:'ancient', url:'https://www.facebook.com/reel/844402294635742'},
+{map:'ancient', url:'https://www.facebook.com/reel/811024578474982'},
+{map:'ancient', url:'https://www.facebook.com/reel/857918566736381'},
+{map:'ancient', url:'https://www.facebook.com/reel/4104364249803822'},
+{map:'ancient', url:'https://www.facebook.com/reel/1515960806284848'},
+{map:'ancient', url:'https://www.facebook.com/reel/1180401770312532'},
+{map:'ancient', url:'https://www.facebook.com/reel/1098769938874822'},
+{map:'ancient', url:'https://www.facebook.com/watch/?v=4273339409661625'},
+{map:'inferno', url:'https://www.facebook.com/reel/1093975036196592'},
+{map:'inferno', url:'https://www.facebook.com/reel/1504675564132563'},
+{map:'inferno', url:'https://www.facebook.com/share/v/19qW1wkPZN/'},
+{map:'inferno', url:'https://www.facebook.com/reel/1788438738480002'},
+{map:'inferno', url:'https://www.facebook.com/reel/831012742845289'},
+{map:'inferno', url:'https://www.facebook.com/reel/2152420978896159'},
+{map:'inferno', url:'https://www.facebook.com/reel/817664177695326'},
+{map:'inferno', url:'https://www.facebook.com/reel/2378138322607352'},
+{map:'inferno', url:'https://www.facebook.com/reel/867815432427050'},
+{map:'inferno', url:'https://www.facebook.com/reel/1357611619443559'},
+{map:'inferno', url:'https://www.facebook.com/share/r/17af11dAaK/'},
+{map:'inferno', url:'https://www.youtube.com/shorts/KpUrP-F82jQ'},
+{map:'inferno', url:'https://www.facebook.com/reel/1501425424272935'},
+{map:'inferno', url:'https://www.facebook.com/reel/1180931863757277'},
+{map:'inferno', url:'https://www.facebook.com/reel/846240284891623'},
+{map:'dust2', url:'https://www.facebook.com/reel/1471000430799341'},
+{map:'dust2', url:'https://www.facebook.com/reel/857175093928704'},
+{map:'dust2', url:'https://www.facebook.com/reel/848927597665953'},
+{map:'dust2', url:'https://www.facebook.com/reel/2685283108482503'},
+{map:'dust2', url:'https://www.facebook.com/reel/2065942940904103'},
+{map:'dust2', url:'https://www.youtube.com/shorts/U3tUNrdAfas'},
+{map:'dust2', url:'https://www.facebook.com/reel/1682975089068669'},
+{map:'dust2', url:'https://www.facebook.com/reel/1574967057261369'},
+{map:'dust2', url:'https://www.facebook.com/share/r/18133WXeiR/'},
+{map:'dust2', url:'https://www.facebook.com/reel/1355881572325593'},
+{map:'dust2', url:'https://www.facebook.com/reel/1583756912650146'},
+{map:'dust2', url:'https://www.facebook.com/reel/1188838776101619'},
+{map:'dust2', url:'https://www.facebook.com/reel/1864524004429590'},
+{map:'dust2', url:'https://www.facebook.com/reel/1276923277816723'},
+{map:'dust2', url:'https://www.facebook.com/reel/25647983234836580'},
+{map:'dust2', url:'https://www.facebook.com/reel/4295340287450382'},
+{map:'dust2', url:'https://www.facebook.com/watch/?v=909184414985595'},
+{map:'dust2', url:'https://www.facebook.com/reel/858535150370267'},
+{map:'dust2', url:'https://www.facebook.com/reel/1215690513332045'},
+{map:'dust2', url:'https://www.facebook.com/reel/1439063958002963'},
+{map:'overpass', url:'https://www.facebook.com/reel/25530700639849637'},
+{map:'overpass', url:'https://www.facebook.com/reel/1116586973886953'},
+{map:'overpass', url:'https://www.facebook.com/reel/1424653386030796'},
+{map:'overpass', url:'https://www.facebook.com/reel/1209430144473720'},
+{map:'overpass', url:'https://www.facebook.com/reel/1843104276335696'},
+{map:'overpass', url:'https://www.facebook.com/reel/1941887750064430'},
+{map:'overpass', url:'https://www.facebook.com/reel/1387483699453088'},
+{map:'mirage', url:'https://www.facebook.com/reel/1786408792078935'},
+{map:'mirage', url:'https://www.facebook.com/reel/1180681717276077'},
+{map:'mirage', url:'https://www.facebook.com/reel/1446023437533082'},
+{map:'mirage', url:'https://www.facebook.com/reel/1891991191738669'},
+{map:'mirage', url:'https://www.facebook.com/reel/1337520197655415'},
+{map:'mirage', url:'https://www.facebook.com/reel/2163127574425803'},
+{map:'mirage', url:'https://www.facebook.com/reel/4255657118021464'},
+{map:'mirage', url:'https://www.facebook.com/reel/1223803469609738'},
+{map:'mirage', url:'https://www.facebook.com/reel/1319052349417955'},
+{map:'mirage', url:'https://www.facebook.com/reel/4243343769267935'},
+{map:'mirage', url:'https://www.facebook.com/reel/853194237627696'},
+{map:'mirage', url:'https://www.facebook.com/reel/787577150540601'},
+{map:'mirage', url:'https://www.facebook.com/reel/846789618068138'},
+{map:'mirage', url:'https://www.facebook.com/watch/?v=2264197274101830'},
+{map:'mirage', url:'https://www.facebook.com/reel/4312635042337404'},
+{map:'mirage', url:'https://www.facebook.com/reel/4461682250760922'},
+{map:'mirage', url:'https://www.facebook.com/reel/1447591740127425'},
+{map:'mirage', url:'https://www.facebook.com/reel/1929498704317739'},
+{map:'mirage', url:'https://www.facebook.com/reel/1408781014360188'},
+{map:'mirage', url:'https://www.facebook.com/reel/1986901621884078'},
+{map:'nuke', url:'https://www.facebook.com/reel/1193910756011486'},
+{map:'nuke', url:'https://www.facebook.com/share/v/16qb5AG6z6/'},
+{map:'nuke', url:'https://www.facebook.com/reel/25397335643258930'},
+{map:'nuke', url:'https://www.facebook.com/reel/784669217972084'},
+{map:'nuke', url:'https://www.facebook.com/reel/862264130049042'},
+{map:'anubis', url:'https://www.facebook.com/reel/846153768230312'},].map((x,i)=>({id:'nv'+i, ...x}));
+
+/* ===================== GALERIA DE PRINTS (aguardando upload do usuário) ===================== */
+const GALLERY = {
+  mirage: [
+    {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/mirage-spawns-1-6.jpg', caption:'Spawns #1 a #6 - referência de jumpthrow'},
+    {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/mirage-spawns-7-12.jpg', caption:'Spawns #7 a #12 - referência de jumpthrow'},
+  ],
+};
+
+/* ===================== ESTADO ===================== */
+let state = { view:'home', map:null, query:'', side:'all', cat:'all', extra:[], novasQueue:[...NOVAS], customIcons:{}, iconPanelOpen:false, collapsedCats:new Set() };
+
+function getMapIconHtml(id, sizePx){
+  const s = sizePx ? `width:${sizePx}px;height:${sizePx}px;` : 'width:100%;height:100%;';
+  if(ICON_URLS.maps[id]) return `<img src="${ICON_URLS.maps[id]}" style="${s}object-fit:cover;border-radius:8px;">`;
+  const custom = state.customIcons['map:'+id];
+  return custom ? `<img src="${custom}" style="${s}object-fit:cover;border-radius:8px;">` : MAP_ICONS[id];
+}
+function getSideIconHtml(side, sizePx){
+  if(!ICON_URLS.sides[side]) return '';
+  return `<img src="${ICON_URLS.sides[side]}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;border-radius:4px;vertical-align:middle;margin-right:4px;">`;
+}
+function getCatIconHtml(id, sizePx){
+  const s = sizePx ? `width:${sizePx}px;height:${sizePx}px;` : 'width:100%;height:100%;';
+  if(ICON_URLS.cats[id]) return `<img src="${ICON_URLS.cats[id]}" style="${s}object-fit:contain;">`;
+  const custom = state.customIcons['cat:'+id];
+  return custom ? `<img src="${custom}" style="${s}object-fit:contain;">` : CAT_META[id].icon;
+}
+
+async function loadState(){
+  try{
+    const r = await window.storage.get('nades-cs2-state');
+    if(r && r.value){
+      const saved = JSON.parse(r.value);
+      state.extra = saved.extra || [];
+      state.novasQueue = saved.novasQueue || [...NOVAS];
+    }
+  }catch(e){ /* primeira vez, sem dado salvo ainda */ }
+  try{
+    const ri = await window.storage.get('nades-cs2-icons');
+    if(ri && ri.value){ state.customIcons = JSON.parse(ri.value); }
+  }catch(e){ /* sem ícones customizados ainda */ }
+  render();
+}
+async function saveState(){
+  try{
+    await window.storage.set('nades-cs2-state', JSON.stringify({extra:state.extra, novasQueue:state.novasQueue}));
+  }catch(e){ console.error('Falha ao salvar', e); }
+}
+async function saveIcons(){
+  try{
+    await window.storage.set('nades-cs2-icons', JSON.stringify(state.customIcons));
+  }catch(e){ console.error('Falha ao salvar ícones', e); }
+}
+
+function allNades(){ return NADES.concat(state.extra); }
+
+const app = document.getElementById('app');
+let html = '';
+
+function render(){
+  if(state.view==='home') renderHome();
+  else renderMap(state.map);
+}
+
+function renderHeader(){
+  const p = allNades().length;
+  return `
+  <header>
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>DOCS V2</h1>
+        <span>Professional Support</span>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="total-pill"><b>${p}</b> granadas cadastradas</div>
+    </div>
+  </header>`;
+}
+
+function renderSearch(){
+  return `
+  <div class="searchbar">
+    <input id="search" type="text" placeholder="Buscar granada, mapa, local... (ex: banana, exec b, retake)" value="${escapeHtml(state.query)}">
+    <kbd>/</kbd>
+  </div>`;
+}
+
+function renderHome(){
+  const all = allNades();
+  html = renderHeader();
+  html += renderSearch();
+
+  if(state.query.trim()){
+    html += searchResultsHtml(all);
+    app.innerHTML = html;
+    bindGlobal();
+    return;
+  }
+
+  html += `<div class="mapgrid">`;
+  MAPS.forEach(m=>{
+    const count = all.filter(x=>x.map===m.id).length;
+    const novasCount = state.novasQueue.filter(x=>x.map===m.id).length;
+    html += `
+    <div class="mapcard" data-map="${m.id}">
+      <span class="icon">${getMapIconHtml(m.id)}</span>
+      <h3>${m.name}</h3>
+      <div class="count">${count} granadas</div>
+    </div>`;
+  });
+  html += `</div>`;
+  app.innerHTML = html;
+  bindGlobal();
+  document.querySelectorAll('.mapcard').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.view='map'; state.map=el.dataset.map; state.cat='all'; state.side='all'; state.query=''; state.collapsedCats=new Set(); render(); });
+  });
+}
+
+function searchResultsHtml(all){
+  const q = state.query.trim().toLowerCase();
+  const results = all.filter(x => (x.name+' '+x.map).toLowerCase().includes(q));
+  let h = `<div class="section-title"><h2>Resultados (${results.length})</h2><div class="line"></div></div>`;
+  h += results.length ? results.map(cardHtml).join('') : `<div class="empty">Nada encontrado pra "${escapeHtml(state.query)}"</div>`;
+  return h;
+}
+
+function catBadge(cat){
+  const meta = CAT_META[cat];
+  return `<span class="cat-badge" style="background:${meta.color}22; color:${meta.color};">${getCatIconHtml(cat)}</span>`;
+}
+
+function cardHtml(x){
+  const meta = CAT_META[x.cat];
+  return `
+  <div class="card" data-id="${x.id}" style="border-left-color:${meta.color}; background:linear-gradient(90deg, ${meta.color}14, var(--panel) 18%);">
+    ${catBadge(x.cat)}
+    <span class="side-tag ${x.side}">${getSideIconHtml(x.side,20)}${x.side.toUpperCase()}</span>
+    <div class="card-body">
+      <div class="card-name">${x.essential?'<span class="star">★</span>':''}<a href="${x.url}" target="_blank" rel="noopener">${escapeHtml(x.name)}</a></div>
+      <div class="card-meta">${MAPS.find(m=>m.id===x.map)?.name || x.map} · ${meta.label}</div>
+    </div>
+    ${x.custom ? `<button class="delbtn" data-del="${x.id}" title="Remover">✕</button>` : ''}
+  </div>`;
+}
+
+function renderMap(mapId){
+  const m = MAPS.find(x=>x.id===mapId);
+  const all = allNades().filter(x=>x.map===mapId);
+  const novas = state.novasQueue.filter(x=>x.map===mapId);
+  const gallery = GALLERY[mapId] || [];
+
+  html = renderHeader();
+  html += `<button class="backbtn" id="back">← Todos os mapas</button>`;
+  html += renderSearch();
+
+  if(state.query.trim()){
+    html += searchResultsHtml(allNades());
+    app.innerHTML = html;
+    bindGlobal();
+    document.getElementById('back').addEventListener('click', ()=>{ state.view='home'; state.query=''; render(); });
+    return;
+  }
+
+  html += `<div class="map-title"><span class="icon">${getMapIconHtml(mapId)}</span><h2>${m.name}</h2></div>`;
+
+  if(gallery.length){
+    html += `<div class="section-title"><h2>Prints de referência</h2><div class="line"></div></div>`;
+    html += `<div class="gallery">${gallery.map((g,i)=>`<img src="${g.src}" alt="${escapeHtml(g.caption||'')}" title="${escapeHtml(g.caption||'')}" data-lightbox="${mapId}:${i}">`).join('')}</div>`;
+  }
+
+  html += `<div class="filter-label">Lado</div>`;
+  html += `<div class="filters">
+    <div class="chip ${state.side==='all'?'active':''}" data-side="all">Todos</div>
+    <div class="chip side-tr ${state.side==='tr'?'active':''}" data-side="tr">${getSideIconHtml('tr',20)}TR</div>
+    <div class="chip side-ct ${state.side==='ct'?'active':''}" data-side="ct">${getSideIconHtml('ct',20)}CT</div>
+  </div>`;
+
+  html += `<div class="filter-label">Categoria</div>`;
+  html += `<div class="filters">
+    <div class="chip ${state.cat==='all'?'active':''}" data-cat="all">Todas</div>
+    ${CAT_ORDER.map(c=>`<div class="chip ${state.cat===c?'cat-active active':''}" data-cat="${c}" style="${state.cat===c?`background:${CAT_META[c].color};`:''}">${getCatIconHtml(c,20)}${CAT_META[c].label}</div>`).join('')}
+  </div>`;
+
+  const filtered = all.filter(x => (state.side==='all' || x.side===state.side) && (state.cat==='all' || x.cat===state.cat));
+
+  const catsToShow = state.cat==='all' ? CAT_ORDER : [state.cat];
+  let any = false;
+  catsToShow.forEach(cat=>{
+    const items = filtered.filter(x=>x.cat===cat);
+    if(!items.length) return;
+    any = true;
+    const isCollapsed = state.collapsedCats.has(cat);
+    html += `<div class="section-title ${isCollapsed?'collapsed':''}" data-toggle-cat="${cat}" style="background:${CAT_META[cat].color}1c; border:1px solid ${CAT_META[cat].color}40;"><span class="cat-icon" style="background:${CAT_META[cat].color}; color:#1a1608;">${getCatIconHtml(cat)}</span><h2 style="color:${CAT_META[cat].color};">${CAT_META[cat].label}</h2><span class="count-tag">${items.length}</span><span class="chevron">▾</span></div>`;
+    if(!isCollapsed){
+      html += items.map(cardHtml).join('');
+    }
+  });
+  if(!any){
+    html += `<div class="empty">Nenhuma granada cadastrada com esse filtro ainda.</div>`;
+  }
+
+  if(novas.length){
+    const isNovasCollapsed = state.collapsedCats.has('_novas');
+    html += `<div class="section-title ${isNovasCollapsed?'collapsed':''}" data-toggle-cat="_novas" style="background:${'#e8c15a'}1c; border:1px solid ${'#e8c15a'}40;"><span class="cat-icon" style="background:var(--gold); color:#1a1608; font-size:16px;">🆕</span><h2 style="color:var(--gold);">Novas — a categorizar</h2><span class="count-tag">${novas.length}</span><span class="chevron">▾</span></div>`;
+    if(!isNovasCollapsed){
+      html += novas.map(nv=>`
+        <div class="novas-item" data-nid="${nv.id}">
+          <a href="${nv.url}" target="_blank" rel="noopener">${nv.url}</a>
+          <select class="nv-side">
+            <option value="tr">TR</option>
+            <option value="ct">CT</option>
+          </select>
+          <select class="nv-cat">
+            ${CAT_ORDER.map(c=>`<option value="${c}">${CAT_META[c].label}</option>`).join('')}
+          </select>
+          <input type="text" class="nv-name" placeholder="Nome da granada">
+          <button data-promote="${nv.id}">Salvar</button>
+        </div>`).join('');
+    }
+  }
+
+  html += `
+  <details class="addbox">
+    <summary>+ Adicionar granada manualmente</summary>
+    <div class="addform">
+      <select id="af-side"><option value="tr">TR</option><option value="ct">CT</option></select>
+      <select id="af-cat">${CAT_ORDER.map(c=>`<option value="${c}">${CAT_META[c].label}</option>`).join('')}</select>
+      <input class="full" id="af-name" type="text" placeholder="Nome (ex: Exec B rápida)">
+      <input class="full" id="af-url" type="text" placeholder="Link (YouTube, Facebook, etc)">
+      <button id="af-submit">Adicionar</button>
+    </div>
+  </details>`;
+
+  app.innerHTML = html;
+  bindGlobal();
+
+  document.getElementById('back').addEventListener('click', ()=>{ state.view='home'; render(); });
+  document.querySelectorAll('[data-side]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.side = el.dataset.side; render(); });
+  });
+  document.querySelectorAll('[data-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.cat = el.dataset.cat; render(); });
+  });
+  document.querySelectorAll('[data-toggle-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const cat = el.dataset.toggleCat;
+      if(state.collapsedCats.has(cat)) state.collapsedCats.delete(cat);
+      else state.collapsedCats.add(cat);
+      render();
+    });
+  });
+  document.querySelectorAll('[data-promote]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const nid = btn.dataset.promote;
+      const item = state.novasQueue.find(x=>x.id===nid);
+      const wrap = btn.closest('.novas-item');
+      const side = wrap.querySelector('.nv-side').value;
+      const cat = wrap.querySelector('.nv-cat').value;
+      const name = wrap.querySelector('.nv-name').value.trim() || 'Sem nome';
+      state.extra.push({id:'x'+Date.now(), map:item.map, side, cat, name, url:item.url, essential:false, custom:true});
+      state.novasQueue = state.novasQueue.filter(x=>x.id!==nid);
+      saveState(); render();
+    });
+  });
+  const submitBtn = document.getElementById('af-submit');
+  if(submitBtn){
+    submitBtn.addEventListener('click', ()=>{
+      const side = document.getElementById('af-side').value;
+      const cat = document.getElementById('af-cat').value;
+      const name = document.getElementById('af-name').value.trim();
+      const url = document.getElementById('af-url').value.trim();
+      if(!name || !url) return;
+      state.extra.push({id:'x'+Date.now(), map:mapId, side, cat, name, url, essential:false, custom:true});
+      saveState(); render();
+    });
+  }
+}
+
+function bindGlobal(){
+  const search = document.getElementById('search');
+  if(search){
+    search.addEventListener('input', ()=>{
+      state.query = search.value;
+      render();
+      setTimeout(()=>{ const s=document.getElementById('search'); if(s){ s.focus(); s.setSelectionRange(s.value.length,s.value.length);} },0);
+    });
+  }
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.del;
+      state.extra = state.extra.filter(x=>x.id!==id);
+      saveState(); render();
+    });
+  });
+  document.querySelectorAll('[data-lightbox]').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      const [mapId, idx] = img.dataset.lightbox.split(':');
+      const src = GALLERY[mapId][+idx].src;
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      lb.classList.remove('hidden');
+    });
+  });
+  const openBtn = document.getElementById('open-icon-panel');
+  if(openBtn) openBtn.addEventListener('click', openIconPanel);
+}
+
+const lightboxEl = document.getElementById('lightbox');
+lightboxEl.addEventListener('click', ()=> lightboxEl.classList.add('hidden'));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ lightboxEl.classList.add('hidden'); closeIconPanel(); }
+});
+
+/* ===================== PAINEL DE PERSONALIZAÇÃO DE ÍCONES ===================== */
+let pendingIconKey = null;
+const iconPanelOverlay = document.getElementById('icon-panel-overlay');
+const iconFileInput = document.getElementById('icon-file-input');
+
+function renderIconPanel(){
+  const body = document.getElementById('icon-panel-body');
+  let h = `<div class="grp-label">Categorias de granada</div>`;
+  CAT_ORDER.forEach(c=>{
+    const key = 'cat:'+c;
+    const hasCustom = !!state.customIcons[key];
+    h += `
+    <div class="icon-row">
+      <div class="preview">${getCatIconHtml(c,40)}</div>
+      <div class="name">${CAT_META[c].label}</div>
+      <div class="row-actions">
+        <button data-choose="${key}">Escolher arquivo</button>
+        ${hasCustom ? `<button class="reset" data-reset="${key}">Restaurar</button>` : ''}
+      </div>
+    </div>`;
+  });
+  h += `<div class="grp-label">Mapas</div>`;
+  MAPS.forEach(m=>{
+    const key = 'map:'+m.id;
+    const hasCustom = !!state.customIcons[key];
+    h += `
+    <div class="icon-row">
+      <div class="preview">${getMapIconHtml(m.id,40)}</div>
+      <div class="name">${m.name}</div>
+      <div class="row-actions">
+        <button data-choose="${key}">Escolher arquivo</button>
+        ${hasCustom ? `<button class="reset" data-reset="${key}">Restaurar</button>` : ''}
+      </div>
+    </div>`;
+  });
+  body.innerHTML = h;
+
+  body.querySelectorAll('[data-choose]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      pendingIconKey = btn.dataset.choose;
+      iconFileInput.click();
+    });
+  });
+  body.querySelectorAll('[data-reset]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      delete state.customIcons[btn.dataset.reset];
+      saveIcons(); renderIconPanel(); render();
+    });
+  });
+}
+
+iconFileInput.addEventListener('change', ()=>{
+  const file = iconFileInput.files[0];
+  if(!file || !pendingIconKey) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    state.customIcons[pendingIconKey] = reader.result;
+    saveIcons();
+    renderIconPanel();
+    render();
+    pendingIconKey = null;
+  };
+  reader.readAsDataURL(file);
+  iconFileInput.value = '';
+});
+
+function openIconPanel(){ iconPanelOverlay.classList.remove('hidden'); renderIconPanel(); }
+function closeIconPanel(){ iconPanelOverlay.classList.add('hidden'); }
+iconPanelOverlay.addEventListener('click', (e)=>{ if(e.target===iconPanelOverlay) closeIconPanel(); });
+document.getElementById('close-icon-panel').addEventListener('click', closeIconPanel);
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='/' && document.activeElement.tagName!=='INPUT'){
+    e.preventDefault();
+    setTimeout(()=>{ const s=document.getElementById('search'); if(s) s.focus(); }, 0);
+  }
+});
+
+loadState();
+</script>
+</body>
+</html>
