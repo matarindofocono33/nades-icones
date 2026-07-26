@@ -59,8 +59,8 @@
     padding:8px 16px; border-radius:999px; font-size:12.5px; cursor:pointer; font-family:'Rajdhani';
     font-weight:600; letter-spacing:.04em; text-transform:uppercase; transition:.15s;
   }
-  .chip svg{width:20px; height:20px;}
-  .chip img{width:20px; height:20px; border-radius:4px; vertical-align:middle; object-fit:contain;}
+  .chip svg{width:26px; height:26px;}
+  .chip img{width:26px; height:26px; border-radius:5px; vertical-align:middle; object-fit:contain;}
   .chip:hover{border-color:#3a4150;}
   .chip.active{background:var(--gold); color:#1a1608; border-color:var(--gold);}
   .chip.side-tr.active{background:var(--tr); color:#221305; border-color:var(--tr);}
@@ -92,9 +92,9 @@
   .section-title{display:flex; align-items:center; gap:10px; margin:22px 0 10px; padding:9px 14px; border-radius:8px; cursor:pointer; user-select:none;}
   .section-title .chevron{margin-left:4px; transition:transform .18s; flex:none; color:var(--muted); font-size:14px;}
   .section-title.collapsed .chevron{transform:rotate(-90deg);}
-  .section-title .cat-icon{width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none;}
-  .section-title .cat-icon svg{width:26px; height:26px;}
-  .section-title .cat-icon img{width:38px; height:38px; border-radius:8px; object-fit:cover;}
+  .section-title .cat-icon{width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:none;}
+  .section-title .cat-icon svg{width:36px; height:36px;}
+  .section-title .cat-icon img{width:52px; height:52px; border-radius:10px; object-fit:cover;}
   .section-title h2{margin:0; font-size:15px; font-weight:700; letter-spacing:.04em;}
   .section-title .count-tag{margin-left:auto; font-family:'Inter'; font-size:11px; color:var(--muted);}
 
@@ -109,9 +109,9 @@
   }
   .side-tag.tr{background:var(--tr-dim); color:var(--tr);}
   .side-tag.ct{background:var(--ct-dim); color:var(--ct);}
-  .cat-badge{flex:none; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden;}
-  .cat-badge svg{width:26px; height:26px;}
-  .cat-badge img{width:38px; height:38px; object-fit:cover;}
+  .cat-badge{flex:none; width:52px; height:52px; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .cat-badge svg{width:36px; height:36px;}
+  .cat-badge img{width:52px; height:52px; object-fit:cover;}
   .card-body{flex:1; min-width:0;}
   .card-name{font-size:14.5px; font-weight:500; display:flex; align-items:center; gap:6px;}
   .card-name a{color:var(--text); text-decoration:none;}
@@ -651,7 +651,7 @@ function cardHtml(x){
   return `
   <div class="card" data-id="${x.id}" style="border-left-color:${meta.color}; background:linear-gradient(90deg, ${meta.color}14, var(--panel) 18%);">
     ${catBadge(x.cat)}
-    <span class="side-tag ${x.side}">${getSideIconHtml(x.side,20)}${x.side.toUpperCase()}</span>
+    <span class="side-tag ${x.side}">${getSideIconHtml(x.side,26)}${x.side.toUpperCase()}</span>
     <div class="card-body">
       <div class="card-name">${x.essential?'<span class="star">★</span>':''}<a href="${x.url}" target="_blank" rel="noopener">${escapeHtml(x.name)}</a></div>
       <div class="card-meta">${MAPS.find(m=>m.id===x.map)?.name || x.map} · ${meta.label}</div>
@@ -688,14 +688,14 @@ function renderMap(mapId){
   html += `<div class="filter-label">Lado</div>`;
   html += `<div class="filters">
     <div class="chip ${state.side==='all'?'active':''}" data-side="all">Todos</div>
-    <div class="chip side-tr ${state.side==='tr'?'active':''}" data-side="tr">${getSideIconHtml('tr',20)}TR</div>
-    <div class="chip side-ct ${state.side==='ct'?'active':''}" data-side="ct">${getSideIconHtml('ct',20)}CT</div>
+    <div class="chip side-tr ${state.side==='tr'?'active':''}" data-side="tr">${getSideIconHtml('tr',26)}TR</div>
+    <div class="chip side-ct ${state.side==='ct'?'active':''}" data-side="ct">${getSideIconHtml('ct',26)}CT</div>
   </div>`;
 
   html += `<div class="filter-label">Categoria</div>`;
   html += `<div class="filters">
     <div class="chip ${state.cat==='all'?'active':''}" data-cat="all">Todas</div>
-    ${CAT_ORDER.map(c=>`<div class="chip ${state.cat===c?'cat-active active':''}" data-cat="${c}" style="${state.cat===c?`background:${CAT_META[c].color};`:''}">${getCatIconHtml(c,20)}${CAT_META[c].label}</div>`).join('')}
+    ${CAT_ORDER.map(c=>`<div class="chip ${state.cat===c?'cat-active active':''}" data-cat="${c}" style="${state.cat===c?`background:${CAT_META[c].color};`:''}">${getCatIconHtml(c,26)}${CAT_META[c].label}</div>`).join('')}
   </div>`;
 
   const filtered = all.filter(x => (state.side==='all' || x.side===state.side) && (state.cat==='all' || x.cat===state.cat));
