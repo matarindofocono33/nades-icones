@@ -138,7 +138,10 @@
   .lb-spot:hover{border-color:var(--gold); background:rgba(232,193,90,.10);}
   .lb-spot .lb-chip{position:absolute; top:8px; left:8px; line-height:1; background:rgba(12,14,18,.82); color:var(--gold); border:1px solid rgba(232,193,90,.5); border-radius:999px; padding:5px 10px; font-family:'Rajdhani'; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.75; transition:opacity .15s; white-space:nowrap;}
   .lb-spot:hover .lb-chip{opacity:1;}
-  .lb-bar{position:absolute; top:14px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px; font-family:'Rajdhani'; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:13px; color:var(--muted); white-space:nowrap;}
+  .lightbox.scroll{align-items:flex-start; overflow-y:auto; padding:64px 16px 40px;}
+  .lightbox.scroll .lb-stage img{max-height:none; width:min(94vw, 1200px);}
+  .lightbox .lb-close{position:fixed; z-index:2;}
+  .lb-bar{position:fixed; z-index:2; background:rgba(12,14,18,.9); padding:6px 14px; border-radius:999px; top:14px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px; font-family:'Rajdhani'; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:13px; color:var(--muted); white-space:nowrap;}
   .lb-back{background:var(--gold); color:#1a1608; border:none; border-radius:999px; padding:7px 14px; font-family:'Rajdhani'; font-weight:700; font-size:13px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;}
   .lb-back.hidden{display:none;}
 
@@ -529,10 +532,9 @@ const NOVAS = [
 const GALLERY = {
   inferno: [
     {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a.jpg', caption:'Default A - HE + Molotov (jumpthrow)', spots:[
-      {x:4.88,  y:13.16, w:40.0,  h:31.65, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-pixel.jpg',   label:'Posição'},
-      {x:48.62, y:14.64, w:18.75, h:14.84, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-pixel.jpg',   label:'Posição'},
-      {x:4.62,  y:57.07, w:42.75, h:33.83, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-he.jpg',      label:'Mira HE'},
-      {x:52.62, y:57.07, w:42.75, h:33.83, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-molotov.jpg', label:'Mira Molotov'},
+      {x:4.88,  y:13.03, w:40.0,  h:31.34, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-pixel.jpg',   label:'Posição'},
+      {x:4.62,  y:57.49, w:42.75, h:33.5,  src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-he.jpg',      label:'Mira HE'},
+      {x:52.62, y:57.49, w:42.75, h:33.5,  src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-molotov.jpg', label:'Mira Molotov'},
     ]},
   ],
   mirage: [
@@ -856,6 +858,8 @@ function openLightbox(item){
   clearSpots();
   lbImg.src = item.src;
   lbBack.classList.add('hidden');
+  lightboxEl.classList.toggle('scroll', !!(item.spots && item.spots.length));
+  lightboxEl.scrollTop = 0;
   const spots = item.spots || [];
   lbHint.textContent = spots.length ? 'Clique numa foto pra ver o print original' : '';
   spots.forEach(sp=>{
@@ -873,6 +877,8 @@ function openLightbox(item){
 function openClean(sp){
   clearSpots();
   lbImg.src = sp.src;
+  lightboxEl.classList.remove('scroll');
+  lightboxEl.scrollTop = 0;
   lbHint.textContent = 'Print original · ' + sp.label;
   lbBack.classList.remove('hidden');
 }
