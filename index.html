@@ -132,6 +132,15 @@
   .lightbox.hidden{display:none;}
   .lightbox img{max-width:94vw; max-height:94vh; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.5);}
   .lightbox .lb-close{position:absolute; top:18px; right:22px; color:var(--muted); font-family:'Rajdhani'; font-size:13px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;}
+  .lb-stage{position:relative; display:inline-block; line-height:0; cursor:default;}
+  .lb-stage img{display:block; max-width:94vw; max-height:86vh;}
+  .lb-spot{position:absolute; border:2px solid transparent; border-radius:10px; cursor:zoom-in; transition:border-color .15s, background .15s;}
+  .lb-spot:hover{border-color:var(--gold); background:rgba(232,193,90,.10);}
+  .lb-spot .lb-chip{position:absolute; top:8px; left:8px; line-height:1; background:rgba(12,14,18,.82); color:var(--gold); border:1px solid rgba(232,193,90,.5); border-radius:999px; padding:5px 10px; font-family:'Rajdhani'; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.75; transition:opacity .15s; white-space:nowrap;}
+  .lb-spot:hover .lb-chip{opacity:1;}
+  .lb-bar{position:absolute; top:14px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px; font-family:'Rajdhani'; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:13px; color:var(--muted); white-space:nowrap;}
+  .lb-back{background:var(--gold); color:#1a1608; border:none; border-radius:999px; padding:7px 14px; font-family:'Rajdhani'; font-weight:700; font-size:13px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;}
+  .lb-back.hidden{display:none;}
 
   .icon-btn{
     background:var(--panel); border:1px solid var(--line); color:var(--muted); border-radius:999px;
@@ -182,7 +191,7 @@
 </head>
 <body>
 <div class="app" id="app"></div>
-<div class="lightbox hidden" id="lightbox"><span class="lb-close">Fechar ✕</span><img id="lightbox-img" src=""></div>
+<div class="lightbox hidden" id="lightbox"><span class="lb-close">Fechar ✕</span><div class="lb-bar"><button class="lb-back hidden" id="lb-back">← Voltar</button><span id="lb-hint"></span></div><div class="lb-stage" id="lb-stage"><img id="lightbox-img" src=""></div></div>
 <div class="icon-panel-overlay hidden" id="icon-panel-overlay">
   <div class="icon-panel">
     <button class="close-x" id="close-icon-panel">✕</button>
@@ -516,7 +525,16 @@ const NOVAS = [
 {map:'anubis', url:'https://www.facebook.com/reel/846153768230312'},].map((x,i)=>({id:'nv'+i, ...x}));
 
 /* ===================== GALERIA DE PRINTS (aguardando upload do usuário) ===================== */
+/* spots (opcional): áreas clicáveis em % da imagem montada; cada uma abre o print limpo (src) */
 const GALLERY = {
+  inferno: [
+    {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a.jpg', caption:'Default A - HE + Molotov (jumpthrow)', spots:[
+      {x:4.88,  y:13.16, w:40.0,  h:31.65, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-pixel.jpg',   label:'Posição'},
+      {x:48.62, y:14.64, w:18.75, h:14.84, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-pixel.jpg',   label:'Posição'},
+      {x:4.62,  y:57.07, w:42.75, h:33.83, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-he.jpg',      label:'Mira HE'},
+      {x:52.62, y:57.07, w:42.75, h:33.83, src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/inferno-default-a-molotov.jpg', label:'Mira Molotov'},
+    ]},
+  ],
   mirage: [
     {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/mirage-spawns-1-6.jpg', caption:'Spawns #1 a #6 - referência de jumpthrow'},
     {src:'https://raw.githubusercontent.com/matarindofocono33/nades-icones/main/mirage-spawns-7-12.jpg', caption:'Spawns #7 a #12 - referência de jumpthrow'},
@@ -817,10 +835,7 @@ function bindGlobal(){
   document.querySelectorAll('[data-lightbox]').forEach(img=>{
     img.addEventListener('click', ()=>{
       const [mapId, idx] = img.dataset.lightbox.split(':');
-      const src = GALLERY[mapId][+idx].src;
-      const lb = document.getElementById('lightbox');
-      document.getElementById('lightbox-img').src = src;
-      lb.classList.remove('hidden');
+      openLightbox(GALLERY[mapId][+idx]);
     });
   });
   const openBtn = document.getElementById('open-icon-panel');
@@ -828,6 +843,42 @@ function bindGlobal(){
 }
 
 const lightboxEl = document.getElementById('lightbox');
+const lbStage = document.getElementById('lb-stage');
+const lbImg = document.getElementById('lightbox-img');
+const lbBack = document.getElementById('lb-back');
+const lbHint = document.getElementById('lb-hint');
+let lbItem = null;
+
+function clearSpots(){ lbStage.querySelectorAll('.lb-spot').forEach(s=>s.remove()); }
+
+function openLightbox(item){
+  lbItem = item;
+  clearSpots();
+  lbImg.src = item.src;
+  lbBack.classList.add('hidden');
+  const spots = item.spots || [];
+  lbHint.textContent = spots.length ? 'Clique numa foto pra ver o print original' : '';
+  spots.forEach(sp=>{
+    const el = document.createElement('div');
+    el.className = 'lb-spot';
+    el.style.left = sp.x + '%'; el.style.top = sp.y + '%';
+    el.style.width = sp.w + '%'; el.style.height = sp.h + '%';
+    el.innerHTML = `<span class="lb-chip">🔍 ${escapeHtml(sp.label)}</span>`;
+    el.addEventListener('click', (e)=>{ e.stopPropagation(); openClean(sp); });
+    lbStage.appendChild(el);
+  });
+  lightboxEl.classList.remove('hidden');
+}
+
+function openClean(sp){
+  clearSpots();
+  lbImg.src = sp.src;
+  lbHint.textContent = 'Print original · ' + sp.label;
+  lbBack.classList.remove('hidden');
+}
+
+lbStage.addEventListener('click', (e)=>{ if(lbItem && lbItem.spots) e.stopPropagation(); });
+lbBack.addEventListener('click', (e)=>{ e.stopPropagation(); openLightbox(lbItem); });
 lightboxEl.addEventListener('click', ()=> lightboxEl.classList.add('hidden'));
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape'){ lightboxEl.classList.add('hidden'); closeIconPanel(); }
